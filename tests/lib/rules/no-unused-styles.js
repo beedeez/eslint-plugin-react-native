@@ -20,8 +20,9 @@ require('@babel/eslint-parser');
 
 const ruleTester = new RuleTester();
 const tests = {
-  valid: [{
-    code: `
+	valid: [
+		{
+			code: `
       const styles = StyleSheet.create({
         name: {}
       });
@@ -31,8 +32,9 @@ const tests = {
         }
       });
     `,
-  }, {
-    code: `
+		},
+		{
+			code: `
       const Hello = React.createClass({
         render: function() {
           return <Text textStyle={styles.name}>Hello {this.props.name}</Text>;
@@ -42,8 +44,9 @@ const tests = {
         name: {}
       });
     `,
-  }, {
-    code: `
+		},
+		{
+			code: `
       const styles = StyleSheet.create({
         name: {}
       });
@@ -53,8 +56,9 @@ const tests = {
         }
       });
     `,
-  }, {
-    code: `
+		},
+		{
+			code: `
       const styles = StyleSheet.create({
         name: {},
         welcome: {}
@@ -70,8 +74,9 @@ const tests = {
         }
       });
     `,
-  }, {
-    code: `
+		},
+		{
+			code: `
       const styles = StyleSheet.create({
         text: {}
       })
@@ -84,8 +89,9 @@ const tests = {
         }
       });
     `,
-  }, {
-    code: `
+		},
+		{
+			code: `
       const styles = StyleSheet.create({
         text: {}
       })
@@ -105,14 +111,15 @@ const tests = {
         }
       });
     `,
-  }, {
-    code: `
+		},
+		{
+			code: `
       const styles = StyleSheet.create({
         text: {}
       });
       const Hello = React.createClass({
         getInitialState: function() {
-          return { condition: true, condition2: true }; 
+          return { condition: true, condition2: true };
         },
         render: function() {
           return (
@@ -127,15 +134,16 @@ const tests = {
         }
       });
     `,
-  }, {
-    code: `
+		},
+		{
+			code: `
       const styles = StyleSheet.create({
         text: {},
         text2: {},
       });
       const Hello = React.createClass({
         getInitialState: function() {
-          return { condition: true }; 
+          return { condition: true };
         },
         render: function() {
           return (
@@ -146,8 +154,9 @@ const tests = {
         }
       });
     `,
-  }, {
-    code: `
+		},
+		{
+			code: `
       const styles = StyleSheet.create({
           style1: {
               color: 'red',
@@ -165,17 +174,19 @@ const tests = {
           }
       }
     `,
-  }, {
-    code: `
+		},
+		{
+			code: `
       const styles = StyleSheet.create({
         text: {}
       })
     `,
-  }, {
-    code: `
+		},
+		{
+			code: `
       const Hello = React.createClass({
         getInitialState: function() {
-          return { condition: true }; 
+          return { condition: true };
         },
         render: function() {
           const myStyle = this.state.condition ? styles.text : styles.text2;
@@ -191,8 +202,9 @@ const tests = {
         text2: {},
       });
     `,
-  }, {
-    code: `
+		},
+		{
+			code: `
       const additionalStyles = {};
       const styles = StyleSheet.create({
         name: {},
@@ -204,8 +216,9 @@ const tests = {
         }
       });
     `,
-  }, {
-    code: `
+		},
+		{
+			code: `
       const styles = OtherStyleSheet.create({
         name: {},
       });
@@ -215,10 +228,12 @@ const tests = {
         }
       });
     `,
-  }],
+		},
+	],
 
-  invalid: [{
-    code: `
+	invalid: [
+		{
+			code: `
       const styles = StyleSheet.create({
         text: {}
       })
@@ -228,11 +243,14 @@ const tests = {
         }
       });
     `,
-    errors: [{
-      message: 'Unused style detected: styles.text',
-    }],
-  }, {
-    code: `
+			errors: [
+				{
+					message: 'Unused style detected: styles.text',
+				},
+			],
+		},
+		{
+			code: `
       const styles = StyleSheet.create({
         foo: {},
         bar: {},
@@ -243,11 +261,14 @@ const tests = {
         }
       }
     `,
-    errors: [{
-      message: 'Unused style detected: styles.bar',
-    }],
-  }, {
-    code: `
+			errors: [
+				{
+					message: 'Unused style detected: styles.bar',
+				},
+			],
+		},
+		{
+			code: `
       const styles = StyleSheet.create({
         foo: {},
         bar: {},
@@ -258,11 +279,14 @@ const tests = {
         }
       }
     `,
-    errors: [{
-      message: 'Unused style detected: styles.bar',
-    }],
-  }, {
-    code: `
+			errors: [
+				{
+					message: 'Unused style detected: styles.bar',
+				},
+			],
+		},
+		{
+			code: `
       const styles = OtherStyleSheet.create({
         foo: {},
         bar: {},
@@ -273,38 +297,65 @@ const tests = {
         }
       }
     `,
-    errors: [{
-      message: 'Unused style detected: styles.bar',
-    }],
-  }, {
-    code: `
+			errors: [
+				{
+					message: 'Unused style detected: styles.bar',
+				},
+			],
+		},
+		{
+			code: `
       const styles = StyleSheet.create({
         text: {}
       })
       const Hello = () => (<><Text style={styles.b}>Hello</Text></>);
     `,
-    errors: [{
-      message: 'Unused style detected: styles.text',
-    }],
-  }],
+			errors: [
+				{
+					message: 'Unused style detected: styles.text',
+				},
+			],
+		},
+		{
+			code: `
+		import { memo } from 'react';
+		import { StyleSheet, View } from 'react-native';
+
+		const styles = StyleSheet.create({
+			usedStyle: {
+				width: '100%',
+			},
+			unusedStyle: {
+				height: '100%',
+			},
+		});
+
+		const MemoizedComponent = memo(() => {
+			return <View style={styles.usedStyle} />;
+		});
+	`,
+			errors: [
+				{
+					message: 'Unused style detected: styles.unusedStyle',
+				},
+			],
+		},
+	],
 };
 
 const config = {
-  parser: require.resolve('@babel/eslint-parser'),
-  parserOptions: {
-    requireConfigFile: false,
-    babelOptions: {
-      parserOpts: {
-        plugins: [
-          ['estree', { classFeatures: true }],
-          'jsx',
-        ],
-      },
-    },
-  },
-  settings: {
-    'react-native/style-sheet-object-names': ['StyleSheet', 'OtherStyleSheet'],
-  },
+	parser: require.resolve('@babel/eslint-parser'),
+	parserOptions: {
+		requireConfigFile: false,
+		babelOptions: {
+			parserOpts: {
+				plugins: [['estree', { classFeatures: true }], 'jsx'],
+			},
+		},
+	},
+	settings: {
+		'react-native/style-sheet-object-names': ['StyleSheet', 'OtherStyleSheet'],
+	},
 };
 
 tests.valid.forEach((t) => Object.assign(t, config));
