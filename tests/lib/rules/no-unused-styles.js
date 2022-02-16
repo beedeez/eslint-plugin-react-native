@@ -18,11 +18,40 @@ require('@babel/eslint-parser');
 // Tests
 // ------------------------------------------------------------------------------
 
+const filename = require.resolve('../__mocks__/foo.js');
 const ruleTester = new RuleTester();
 const tests = {
-	valid: [
-		{
-			code: `
+  valid: [
+    {
+      filename,
+      options: [{ enableImportsCheck: true }],
+      code: `
+    import { styles } from './valid-styles-export-const'
+    import { myStyles as renamedStyles } from './valid-styles-export-rename-const'
+    import styles2 from './valid-styles-export-default'
+    import styles3 from './valid-styles-export-var-as-default'
+
+    function Test(){
+      return <View>
+        <Text style={styles.name}>Mur</Text>
+        <Text style={styles2.name}>Amur</Text>
+        <Text style={styles3.name}>Sooqa</Text>
+        <Text style={renamedStyles.name}>!</Text>
+      </View>;
+    }
+    `,
+    },
+    {
+      options: [{ enableImportsCheck: false }],
+      code: `
+    import { styles } from './styles.js'
+
+    function Test(){
+      return <Text style={styles.name}>Hi!</Text>;
+    }
+    `,
+    }, {
+      code: `
       const styles = StyleSheet.create({
         name: {}
       });
@@ -32,9 +61,8 @@ const tests = {
         }
       });
     `,
-		},
-		{
-			code: `
+    }, {
+      code: `
       const Hello = React.createClass({
         render: function() {
           return <Text textStyle={styles.name}>Hello {this.props.name}</Text>;
@@ -44,9 +72,8 @@ const tests = {
         name: {}
       });
     `,
-		},
-		{
-			code: `
+    }, {
+      code: `
       const styles = StyleSheet.create({
         name: {}
       });
@@ -56,9 +83,8 @@ const tests = {
         }
       });
     `,
-		},
-		{
-			code: `
+    }, {
+      code: `
       const styles = StyleSheet.create({
         name: {},
         welcome: {}
@@ -74,9 +100,8 @@ const tests = {
         }
       });
     `,
-		},
-		{
-			code: `
+    }, {
+      code: `
       const styles = StyleSheet.create({
         text: {}
       })
@@ -89,9 +114,8 @@ const tests = {
         }
       });
     `,
-		},
-		{
-			code: `
+    }, {
+      code: `
       const styles = StyleSheet.create({
         text: {}
       })
@@ -111,9 +135,8 @@ const tests = {
         }
       });
     `,
-		},
-		{
-			code: `
+    }, {
+      code: `
       const styles = StyleSheet.create({
         text: {}
       });
@@ -134,9 +157,8 @@ const tests = {
         }
       });
     `,
-		},
-		{
-			code: `
+    }, {
+      code: `
       const styles = StyleSheet.create({
         text: {},
         text2: {},
@@ -154,9 +176,8 @@ const tests = {
         }
       });
     `,
-		},
-		{
-			code: `
+    }, {
+      code: `
       const styles = StyleSheet.create({
           style1: {
               color: 'red',
@@ -174,16 +195,14 @@ const tests = {
           }
       }
     `,
-		},
-		{
-			code: `
+    }, {
+      code: `
       const styles = StyleSheet.create({
         text: {}
       })
     `,
-		},
-		{
-			code: `
+    }, {
+      code: `
       const Hello = React.createClass({
         getInitialState: function() {
           return { condition: true };
@@ -202,9 +221,8 @@ const tests = {
         text2: {},
       });
     `,
-		},
-		{
-			code: `
+    }, {
+      code: `
       const additionalStyles = {};
       const styles = StyleSheet.create({
         name: {},
@@ -216,9 +234,8 @@ const tests = {
         }
       });
     `,
-		},
-		{
-			code: `
+    }, {
+      code: `
       const styles = OtherStyleSheet.create({
         name: {},
       });
@@ -228,12 +245,44 @@ const tests = {
         }
       });
     `,
-		},
-	],
+    },
+  ],
 
-	invalid: [
-		{
-			code: `
+  invalid: [
+    {
+      filename,
+      options: [{ enableImportsCheck: true }],
+      errors: [
+        {
+          message: 'Unused style detected: styles.label',
+        },
+        {
+          message: 'Unused style detected: styles2.label',
+        },
+        {
+          message: 'Unused style detected: styles3.label',
+        },
+        {
+          message: 'Unused style detected: renamedStyles.label',
+        },
+      ],
+      code: `
+    import { styles } from './invalid-styles-export-const'
+    import styles2 from './invalid-styles-export-default'
+    import styles3 from './invalid-styles-export-var-as-default'
+    import { myStyles as renamedStyles } from './invalid-styles-export-rename-const'
+
+    function Test(){
+      return <View>
+        <Text style={styles.name}>Mur</Text>
+        <Text style={styles2.name}>Amur</Text>
+        <Text style={styles3.name}>Sooqa</Text>
+        <Text style={renamedStyles.name}>!</Text>
+      </View>;
+    }
+    `,
+    }, {
+      code: `
       const styles = StyleSheet.create({
         text: {}
       })
@@ -243,14 +292,11 @@ const tests = {
         }
       });
     `,
-			errors: [
-				{
-					message: 'Unused style detected: styles.text',
-				},
-			],
-		},
-		{
-			code: `
+      errors: [{
+        message: 'Unused style detected: styles.text',
+      }],
+    }, {
+      code: `
       const styles = StyleSheet.create({
         foo: {},
         bar: {},
@@ -261,14 +307,11 @@ const tests = {
         }
       }
     `,
-			errors: [
-				{
-					message: 'Unused style detected: styles.bar',
-				},
-			],
-		},
-		{
-			code: `
+      errors: [{
+        message: 'Unused style detected: styles.bar',
+      }],
+    }, {
+      code: `
       const styles = StyleSheet.create({
         foo: {},
         bar: {},
@@ -279,14 +322,11 @@ const tests = {
         }
       }
     `,
-			errors: [
-				{
-					message: 'Unused style detected: styles.bar',
-				},
-			],
-		},
-		{
-			code: `
+      errors: [{
+        message: 'Unused style detected: styles.bar',
+      }],
+    }, {
+      code: `
       const styles = OtherStyleSheet.create({
         foo: {},
         bar: {},
@@ -297,50 +337,20 @@ const tests = {
         }
       }
     `,
-			errors: [
-				{
-					message: 'Unused style detected: styles.bar',
-				},
-			],
-		},
-		{
-			code: `
+      errors: [{
+        message: 'Unused style detected: styles.bar',
+      }],
+    }, {
+      code: `
       const styles = StyleSheet.create({
         text: {}
       })
       const Hello = () => (<><Text style={styles.b}>Hello</Text></>);
     `,
-			errors: [
-				{
-					message: 'Unused style detected: styles.text',
-				},
-			],
-		},
-		{
-			code: `
-		import { memo } from 'react';
-		import { StyleSheet, View } from 'react-native';
-
-		const styles = StyleSheet.create({
-			usedStyle: {
-				width: '100%',
-			},
-			unusedStyle: {
-				height: '100%',
-			},
-		});
-
-		const MemoizedComponent = memo(() => {
-			return <View style={styles.usedStyle} />;
-		});
-	`,
-			errors: [
-				{
-					message: 'Unused style detected: styles.unusedStyle',
-				},
-			],
-		},
-	],
+      errors: [{
+        message: 'Unused style detected: styles.text',
+      }],
+    }],
 };
 
 const config = {
